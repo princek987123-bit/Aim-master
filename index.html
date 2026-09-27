@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>🎯 AIM MASTER — Target Shooting Challenge</title>
+  <meta name="description" content="A fast-paced, addictive frontend target shooting and aim training game built with HTML5 Canvas and Vanilla JavaScript." />
+  
+  <!-- Google Fonts for Gaming Aesthetic -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <!-- Dynamic Background Glow Particles Container -->
+  <div id="bg-glow" class="bg-glow"></div>
+
+  <!-- App Wrapper -->
+  <div class="app-container">
+    
+    <!-- Top Navigation Header / Status Bar -->
+    <header class="top-header">
+      <div class="brand">
+        <span class="brand-icon">🎯</span>
+        <span class="brand-title">AIM<span class="highlight">MASTER</span></span>
+      </div>
+      <div class="header-actions">
+        <button id="btn-theme-toggle" class="icon-btn" aria-label="Toggle Theme" title="Toggle Theme">
+          <span class="theme-icon">🌙</span>
+        </button>
+        <button id="btn-sound-toggle" class="icon-btn" aria-label="Toggle Sound" title="Toggle Sound">
+          <span class="sound-icon">🔊</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Screen: Title & Menu -->
+    <section id="screen-menu" class="screen active">
+      <div class="hero-content">
+        <div class="logo-container">
+          <div class="target-logo-anim">
+            <div class="ring outer"></div>
+            <div class="ring middle"></div>
+            <div class="ring inner"></div>
+            <div class="dot"></div>
+          </div>
+          <h1 class="main-title">AIM <span class="neon-text">MASTER</span></h1>
+          <p class="subtitle">Test your speed. Improve your accuracy.</p>
+        </div>
+
+        <!-- Name Input Section -->
+        <div class="player-name-box">
+          <label for="player-name-input"><span class="icon">👤</span> Player Name:</label>
+          <input type="text" id="player-name-input" maxlength="15" placeholder="Enter Agent Name" value="Sharpshooter" />
+        </div>
+
+        <!-- Difficulty Selection -->
+        <div class="difficulty-selector-container">
+          <label class="section-label">SELECT DIFFICULTY</label>
+          <div class="difficulty-buttons" role="radiogroup" aria-label="Difficulty level">
+            <button class="diff-btn" data-diff="easy" role="radio" aria-checked="false">
+              <span class="diff-name">EASY</span>
+              <span class="diff-desc">Large Targets • 60s</span>
+            </button>
+            <button class="diff-btn active" data-diff="medium" role="radio" aria-checked="true">
+              <span class="diff-name">MEDIUM</span>
+              <span class="diff-desc">Medium Targets • 45s</span>
+            </button>
+            <button class="diff-btn" data-diff="hard" role="radio" aria-checked="false">
+              <span class="diff-name">HARD</span>
+              <span class="diff-desc">Small Targets • 30s</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Menu Action Buttons -->
+        <div class="menu-actions">
+          <button id="btn-start" class="btn primary-btn glow-btn">
+            <span class="btn-icon">⚡</span> PLAY NOW
+          </button>
+          <div class="secondary-menu">
+            <button id="btn-how-to-play" class="btn secondary-btn">
+              <span class="btn-icon">📖</span> HOW TO PLAY
+            </button>
+            <button id="btn-leaderboard" class="btn secondary-btn">
+              <span class="btn-icon">🏆</span> LEADERBOARD
+            </button>
+            <button id="btn-settings" class="btn secondary-btn">
+              <span class="btn-icon">⚙️</span> SETTINGS
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Game Arena Screen -->
+    <section id="screen-game" class="screen">
+      <!-- HUD Header -->
+      <div class="game-hud">
+        <div class="hud-item score-card">
+          <span class="hud-label">SCORE</span>
+          <span id="hud-score" class="hud-value neon-cyan">0</span>
+        </div>
+        <div class="hud-item highscore-card">
+          <span class="hud-label">BEST</span>
+          <span id="hud-highscore" class="hud-value neon-gold">0</span>
+        </div>
+        <div class="hud-item timer-card">
+          <span class="hud-label">TIME</span>
+          <span id="hud-timer" class="hud-value neon-red">45.0s</span>
+        </div>
+        <div class="hud-item hits-card">
+          <span class="hud-label">HITS</span>
+          <span id="hud-hits" class="hud-value">0</span>
+        </div>
+        <div class="hud-item misses-card">
+          <span class="hud-label">MISSES</span>
+          <span id="hud-misses" class="hud-value">0</span>
+        </div>
+        <div class="hud-item accuracy-card">
+          <span class="hud-label">ACCURACY</span>
+          <span id="hud-accuracy" class="hud-value">100%</span>
+        </div>
+        <div class="hud-item combo-card">
+          <span class="hud-label">COMBO</span>
+          <span id="hud-combo" class="hud-value neon-purple">0x</span>
+        </div>
+        <div class="hud-item action-card">
+          <button id="btn-pause" class="btn icon-text-btn" aria-label="Pause Game">
+            <span class="icon">⏸</span> PAUSE
+          </button>
+        </div>
+      </div>
+
+      <!-- Combo Indicator Banner -->
+      <div id="combo-banner" class="combo-banner hidden">
+        <span id="combo-text">COMBO 5x! (1.5x Multiplier)</span>
+      </div>
+
+      <!-- Canvas Container -->
+      <div id="canvas-wrapper" class="canvas-wrapper">
+        <canvas id="game-canvas"></canvas>
+        
+        <!-- Countdown Overlay -->
+        <div id="countdown-overlay" class="countdown-overlay hidden">
+          <div id="countdown-number" class="countdown-number">3</div>
+        </div>
+
+        <!-- Pause Overlay -->
+        <div id="pause-overlay" class="modal-overlay hidden">
+          <div class="modal-card pause-card">
+            <h2>PAUSED</h2>
+            <div class="modal-buttons">
+              <button id="btn-resume" class="btn primary-btn">RESUME</button>
+              <button id="btn-restart" class="btn secondary-btn">RESTART</button>
+              <button id="btn-pause-main-menu" class="btn secondary-btn">MAIN MENU</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Game Over Screen Modal -->
+    <div id="modal-gameover" class="modal-overlay hidden">
+      <div class="modal-card gameover-card">
+        <div id="highscore-badge" class="highscore-badge hidden">
+          🏆 NEW HIGH SCORE!
+        </div>
+        <h2 class="gameover-title">GAME OVER</h2>
+        <p class="gameover-subtitle" id="gameover-player-greeting">Great round, Agent!</p>
+
+        <div class="stats-grid">
+          <div class="stat-box main-stat">
+            <span class="stat-label">FINAL SCORE</span>
+            <span id="go-score" class="stat-value neon-cyan">0</span>
+          </div>
+          <div class="stat-box">
+            <span class="stat-label">HIGH SCORE</span>
+            <span id="go-highscore" class="stat-value neon-gold">0</span>
+          </div>
+          <div class="stat-box">
+            <span class="stat-label">ACCURACY</span>
+            <span id="go-accuracy" class="stat-value">0%</span>
+          </div>
+          <div class="stat-box">
+            <span class="stat-label">TARGETS HIT</span>
+            <span id="go-hits" class="stat-value">0</span>
+          </div>
+          <div class="stat-box">
+            <span class="stat-label">MISSES</span>
+            <span id="go-misses" class="stat-value">0</span>
+          </div>
+          <div class="stat-box">
+            <span class="stat-label">BEST COMBO</span>
+            <span id="go-combo" class="stat-value neon-purple">0x</span>
+          </div>
+          <div class="stat-box span-2">
+            <span class="stat-label">AVG REACTION TIME</span>
+            <span id="go-reaction" class="stat-value">0 ms</span>
+          </div>
+        </div>
+
+        <div class="modal-buttons horizontal">
+          <button id="btn-play-again" class="btn primary-btn glow-btn">
+            🔄 PLAY AGAIN
+          </button>
+          <button id="btn-go-main-menu" class="btn secondary-btn">
+            🏠 MAIN MENU
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- How To Play Modal -->
+    <div id="modal-how-to-play" class="modal-overlay hidden">
+      <div class="modal-card info-card">
+        <div class="modal-header">
+          <h2>🎯 HOW TO PLAY</h2>
+          <button class="close-btn" data-close="modal-how-to-play" aria-label="Close modal">&times;</button>
+        </div>
+        <div class="instructions-content">
+          <div class="instruction-item">
+            <div class="item-icon">🎯</div>
+            <div class="item-text">
+              <strong>Normal Target (+10 Pts)</strong>
+              <p>Standard circular target. Click before it moves away.</p>
+            </div>
+          </div>
+          <div class="instruction-item">
+            <div class="item-icon">⚡</div>
+            <div class="item-text">
+              <strong>Small Target (+20 Pts)</strong>
+              <p>Smaller size, requires precision aiming.</p>
+            </div>
+          </div>
+          <div class="instruction-item">
+            <div class="item-icon">⭐</div>
+            <div class="item-text">
+              <strong>Bonus Target (+50 Pts)</strong>
+              <p>Golden target with short lifetime. Quick response required!</p>
+            </div>
+          </div>
+          <div class="instruction-item">
+            <div class="item-icon">💣</div>
+            <div class="item-text">
+              <strong>Bomb (-10 Pts & Reset Combo)</strong>
+              <p>Avoid clicking bombs! They deduct score and break your streak.</p>
+            </div>
+          </div>
+          <div class="instruction-item">
+            <div class="item-icon">🔥</div>
+            <div class="item-text">
+              <strong>Combo Multipliers</strong>
+              <p>Hit consecutive targets without missing to unlock 1.2x, 1.5x, and 2x score multipliers.</p>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn primary-btn" data-close="modal-how-to-play">GOT IT!</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Leaderboard Modal -->
+    <div id="modal-leaderboard" class="modal-overlay hidden">
+      <div class="modal-card info-card wide-card">
+        <div class="modal-header">
+          <h2>🏆 TOP SHARPSHOOTERS</h2>
+          <button class="close-btn" data-close="modal-leaderboard" aria-label="Close modal">&times;</button>
+        </div>
+        
+        <!-- Filter tabs by difficulty -->
+        <div class="leaderboard-tabs">
+          <button class="tab-btn active" data-tab="all">ALL</button>
+          <button class="tab-btn" data-tab="easy">EASY</button>
+          <button class="tab-btn" data-tab="medium">MEDIUM</button>
+          <button class="tab-btn" data-tab="hard">HARD</button>
+        </div>
+
+        <div class="table-container">
+          <table class="leaderboard-table">
+            <thead>
+              <tr>
+                <th>RANK</th>
+                <th>NAME</th>
+                <th>SCORE</th>
+                <th>MODE</th>
+                <th>ACCURACY</th>
+                <th>DATE</th>
+              </tr>
+            </thead>
+            <tbody id="leaderboard-tbody">
+              <!-- Dynamically populated via script.js -->
+            </tbody>
+          </table>
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn secondary-btn" data-close="modal-leaderboard">CLOSE</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div id="modal-settings" class="modal-overlay hidden">
+      <div class="modal-card info-card">
+        <div class="modal-header">
+          <h2>⚙️ SETTINGS</h2>
+          <button class="close-btn" data-close="modal-settings" aria-label="Close modal">&times;</button>
+        </div>
+
+        <div class="settings-list">
+          <div class="setting-item">
+            <label for="setting-sound">Sound Effects</label>
+            <button id="setting-sound-btn" class="toggle-btn active" aria-pressed="true">
+              <span class="toggle-thumb"></span>
+              <span class="toggle-text">ON</span>
+            </button>
+          </div>
+
+          <div class="setting-item">
+            <label for="setting-speed">Target Movement Speed</label>
+            <select id="setting-speed-select" class="custom-select">
+              <option value="normal">Normal</option>
+              <option value="fast">Fast & Unpredictable</option>
+            </select>
+          </div>
+
+          <div class="setting-item">
+            <label for="setting-theme">Color Theme</label>
+            <select id="setting-theme-select" class="custom-select">
+              <option value="dark">Dark Cyber</option>
+              <option value="light">Light Tactical</option>
+            </select>
+          </div>
+
+          <div class="setting-item danger-zone">
+            <div class="setting-info">
+              <strong>Reset Statistics & Leaderboard</strong>
+              <p>Permanently delete all local high scores and records.</p>
+            </div>
+            <button id="btn-reset-data" class="btn danger-btn">RESET ALL</button>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn primary-btn" data-close="modal-settings">SAVE & CLOSE</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
